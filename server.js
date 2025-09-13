@@ -9,13 +9,14 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 // Carga las credenciales directamente en el código
 // ! IMPORTANTE: En producción, usa variables de entorno para las credenciales.
-const credentials = require('./credentials.json');
-const { client_secret, client_id, redirect_uris } = credentials.web;
+const client_id = process.env.GOOGLE_CLIENT_ID;
+const client_secret = process.env.GOOGLE_CLIENT_SECRET;
+const redirect_uri = process.env.GOOGLE_REDIRECT_URI;
 
 const oAuth2Client = new google.auth.OAuth2(
   client_id,
   client_secret,
-  redirect_uris[0]
+  redirect_uri
 );
 
 const SCOPES = ['https://www.googleapis.com/auth/drive.file'];
@@ -83,4 +84,6 @@ const port = process.env.PORT || 3000;
 app.listen(port, () => {
   console.log(`Servidor escuchando en el puerto ${port}`);
 });
+
+
 
