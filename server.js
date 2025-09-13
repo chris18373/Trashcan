@@ -2,6 +2,8 @@ const express = require('express');
 const { google } = require('googleapis');
 const path = require('path');
 const fs = require('fs');
+const path = require('path');
+app.use(express.static(path.join(__dirname, 'public'))); // O __dirname, '.'
 
 const app = express();
 app.use(express.json());
@@ -79,11 +81,21 @@ app.get('/download/:fileId', async (req, res) => {
   }
 });
 
-app.get('/', (req, res) => {
-res.send("the server is real!!!!!!!!")
-  
-})
-
+// Nueva ruta para listar los archivos en Google Drive
+app.get('/list', async (req, res) => {
+  try {
+    const drive = google.drive({ version: 'v3', auth: oAuth2Client });
+    const response = await drive.files.list({
+      q: "mimeType='image/jpeg' or mimeType='image/png' or mimeType='video/mp4'",
+      fields: 'nextPageToken, files(id, name)',
+    });
+    const files = response.data.files;
+    res.status(200).json(files);
+  } catch (error) {
+    console.error('Error al listar archivos:', error);
+    res.status(500).json({ error: 'Error al listar archivos.' });
+  }
+});
 // --- Inicio del servidor ---
 const port = process.env.PORT || 3000;
 app.listen(port, () => {
