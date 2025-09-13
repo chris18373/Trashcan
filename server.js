@@ -2,9 +2,9 @@ const express = require('express');
 const { google } = require('googleapis');
 const path = require('path');
 const fs = require('fs');
-app.use(express.static(path.join(__dirname, 'public'))); // O __dirname, '.'
 
 const app = express();
+app.use(express.static(path.join(__dirname, 'public'))); // O __dirname, '.'
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
