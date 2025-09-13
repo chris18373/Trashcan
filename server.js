@@ -79,6 +79,11 @@ app.get('/download/:fileId', async (req, res) => {
   }
 });
 
+app.get('/', (req, res) => {
+res.send("the server is real!!!!!!!!")
+  
+})
+
 // --- Inicio del servidor ---
 const port = process.env.PORT || 3000;
 app.listen(port, () => {
