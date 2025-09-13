@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>trashcan</title>
+</head>
+<body>
+
+    <h1>Bienvenido a trashcan!, listo para la recoleccion de hoy?</h1>
+
+    <h2>Subir archivo</h2>
+    <input type="file" id="fileInput" accept="video/mp4,image/*">
+    <button id="uploadButton">Subir</button>
+
+    <hr>
+
+    <h2>Descargar archivos</h2>
+    <button id="downloadListButton">Mostrar/Actualizar Archivos</button>
+    <div id="fileList"></div>
+
+    <script>
+        const uploadButton = document.getElementById('uploadButton');
+        const downloadListButton = document.getElementById('downloadListButton');
+        const fileInput = document.getElementById('fileInput');
+        const fileListContainer = document.getElementById('fileList');
+
+        // Lógica para el botón de subida
+        uploadButton.addEventListener('click', async () => {
+            const file = fileInput.files[0];
+            if (!file) {
+                alert('Por favor, selecciona un archivo primero.');
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = async (e) => {
+                const fileContent = e.target.result;
+                const base64Content = fileContent.split(',')[1];
+                
+                try {
+                    const response = await fetch('/upload', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            name: file.name,
+                            content: base64Content
+                        })
+                    });
+                    const data = await response.json();
+                    if (response.ok) {
+                        alert(`Archivo subido con éxito. ID: ${data.id}`);
+                    } else {
+                        alert(`Error al subir el archivo: ${data.error}`);
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                    alert('Error en la conexión con el servidor.');
+                }
+            };
+            reader.readAsDataURL(file);
+        });
+
+        // Lógica para el botón de descarga
+        downloadListButton.addEventListener('click', async () => {
+            fileListContainer.innerHTML = 'Cargando...';
+            try {
+                const response = await fetch('/list');
+                const files = await response.json();
+                
+                fileListContainer.innerHTML = '';
+                if (files.length === 0) {
+                    fileListContainer.innerHTML = 'No se encontraron archivos.';
+                    return;
+                }
+
+                files.forEach(file => {
+                    const fileButton = document.createElement('button');
+                    fileButton.textContent = file.name;
+                    fileButton.style.display = 'block';
+                    fileButton.style.marginTop = '10px';
+                    fileButton.addEventListener('click', () => {
+                        window.location.href = `/download/${file.id}`;
+                    });
+                    fileListContainer.appendChild(fileButton);
+                });
+
+            } catch (error) {
+                console.error('Error:', error);
+                fileListContainer.innerHTML = 'Error al obtener la lista de archivos.';
+            }
+        });
+
+    </script>
+</body>
+</html>
