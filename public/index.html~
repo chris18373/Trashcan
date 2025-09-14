@@ -2,72 +2,21 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Trashcan</title>
-    <style>
-        body {
-            font-family: sans-serif;
-            margin: 20px;
-            background-color: #f4f4f9;
-        }
-        h1, h2 {
-            color: #333;
-        }
-        .container {
-            max-width: 600px;
-            margin: auto;
-            background: #fff;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-        }
-        input[type="file"], button {
-            display: block;
-            margin-bottom: 15px;
-            width: 100%;
-            padding: 10px;
-            box-sizing: border-box;
-        }
-        button {
-            background-color: #007bff;
-            color: white;
-            border: none;
-            cursor: pointer;
-            border-radius: 4px;
-        }
-        button:hover {
-            background-color: #0056b3;
-        }
-        hr {
-            border: 0;
-            height: 1px;
-            background-color: #ccc;
-            margin: 20px 0;
-        }
-        .file-button {
-            background-color: #6c757d;
-            margin-top: 10px;
-        }
-        .file-button:hover {
-            background-color: #5a6268;
-        }
-    </style>
+    <title>trashcan</title>
 </head>
 <body>
 
-    <div class="container">
-        <h1>Bienvenido a trashcan!, listo para la recoleccion de hoy?</h1>
-        <hr>
+    <h1>Bienvenido a trashcan!, listo para la recoleccion de hoy?</h1>
 
-        <h2>Subir archivo</h2>
-        <input type="file" id="fileInput" accept="video/mp4,image/*">
-        <button id="uploadButton">Subir a Google Drive</button>
+    <h2>Subir archivo</h2>
+    <input type="file" id="fileInput" accept="video/mp4,image/*">
+    <button id="uploadButton">Subir</button>
 
-        <hr>
+    <hr>
 
-        <h2>Descargar archivos</h2>
-        <button id="downloadListButton">Mostrar/Actualizar Archivos</button>
-        <div id="fileList"></div>
-    </div>
+    <h2>Descargar archivos</h2>
+    <button id="downloadListButton">Mostrar/Actualizar Archivos</button>
+    <div id="fileList"></div>
 
     <script>
         const uploadButton = document.getElementById('uploadButton');
@@ -100,7 +49,6 @@
                     const data = await response.json();
                     if (response.ok) {
                         alert(`Archivo subido con éxito. ID: ${data.id}`);
-                        fileInput.value = null; // Limpia el input
                     } else {
                         alert(`Error al subir el archivo: ${data.error}`);
                     }
@@ -128,7 +76,8 @@
                 files.forEach(file => {
                     const fileButton = document.createElement('button');
                     fileButton.textContent = file.name;
-                    fileButton.className = 'file-button'; // Agrega la clase
+                    fileButton.style.display = 'block';
+                    fileButton.style.marginTop = '10px';
                     fileButton.addEventListener('click', () => {
                         window.location.href = `/download/${file.id}`;
                     });
