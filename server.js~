@@ -29,7 +29,23 @@ app.get('/auth/google', (req, res) => {
     });
     res.redirect(authorizeUrl);
 });
+// Ruta para manejar el callback de Google OAuth
+app.get('/auth/google/callback', async (req, res) => {
+    try {
+        const { code } = req.query;
+        const { tokens } = await oAuth2Client.getToken(code);
+        oAuth2Client.setCredentials(tokens);
 
+        // Guardar los tokens en un lugar seguro (por ejemplo, en una base de datos)
+        // Para este proyecto, puedes guardarlos en una variable global o en una cookie
+
+        // Redirigir al usuario a la página principal una vez autenticado
+        res.redirect('/');
+    } catch (error) {
+        console.error('Error al manejar el callback de Google:', error);
+        res.status(500).send('Error de autenticación.');
+    }
+});
 // Ruta para manejar el callback de Google OAuth
 app.get('/auth/google/callback', async (req, res) => {
     try {

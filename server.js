@@ -17,42 +17,31 @@ const oAuth2Client = new google.auth.OAuth2(
     process.env.GOOGLE_REDIRECT_URI
 );
 
-// Variable para almacenar los tokens de acceso
+// Variable para almacenar los tokens. ¡IMPORTANTE! Esto se borrará al reiniciar.
 let token;
 
 // Ruta para iniciar el flujo de autenticación de Google
 app.get('/auth/google', (req, res) => {
     const authorizeUrl = oAuth2Client.generateAuthUrl({
-        access_type: 'offline',
+        access_type: 'offline', // Esto asegura que obtendrás un refresh_token
         scope: ['https://www.googleapis.com/auth/drive.file'],
         prompt: 'consent'
     });
     res.redirect(authorizeUrl);
 });
+
 // Ruta para manejar el callback de Google OAuth
 app.get('/auth/google/callback', async (req, res) => {
     try {
         const { code } = req.query;
         const { tokens } = await oAuth2Client.getToken(code);
         oAuth2Client.setCredentials(tokens);
-
-        // Guardar los tokens en un lugar seguro (por ejemplo, en una base de datos)
-        // Para este proyecto, puedes guardarlos en una variable global o en una cookie
-
-        // Redirigir al usuario a la página principal una vez autenticado
-        res.redirect('/');
-    } catch (error) {
-        console.error('Error al manejar el callback de Google:', error);
-        res.status(500).send('Error de autenticación.');
-    }
-});
-// Ruta para manejar el callback de Google OAuth
-app.get('/auth/google/callback', async (req, res) => {
-    try {
-        const { code } = req.query;
-        const { tokens } = await oAuth2Client.getToken(code);
-        oAuth2Client.setCredentials(tokens);
-        token = tokens; // Guarda los tokens para usarlos en otras rutas
+        token = tokens; 
+        
+        // ¡ESTO ES LO QUE NECESITAS! Busca este mensaje en los logs de Render
+        console.log('Token de autenticación completo:', tokens);
+        
+        // Redirige al usuario a la página principal una vez autenticado
         res.redirect('/');
     } catch (error) {
         console.error('Error al manejar el callback de Google:', error);
@@ -71,9 +60,7 @@ app.post('/upload', async (req, res) => {
         
         const { name, content } = req.body;
         const fileContent = Buffer.from(content, 'base64');
-        const fileMetadata = {
-            'name': name
-        };
+        const fileMetadata = { 'name': name };
         const media = {
             mimeType: path.extname(name) === '.mp4' ? 'video/mp4' : 'image/jpeg',
             body: fileContent
@@ -128,9 +115,7 @@ app.get('/download/:fileId', async (req, res) => {
         }, { responseType: 'stream' });
 
         response.data
-            .on('end', () => {
-                console.log('Descarga completa');
-            })
+            .on('end', () => { console.log('Descarga completa'); })
             .on('error', err => {
                 console.error('Error durante la descarga:', err);
                 res.status(500).send('Error de descarga.');
